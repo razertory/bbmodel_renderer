@@ -1,0 +1,12 @@
+{
+  "name": "bbmodel_renderer",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "start": "bun run src/index.ts",
+    "build:renderer": "bun build src/render/page-entry.ts --target=browser --minify --outfile=assets/renderer.bundle.js",
+    "prebuild": "bun run build:renderer",
+    "test": "bun test"
+  }
+}
