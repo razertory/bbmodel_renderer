@@ -10,6 +10,7 @@ const proc = spawn("bun", ["run", "src/index.ts"], {
     S3_BUCKET: "test-bucket",
     S3_ENDPOINT: "http://localhost:9000",
     RENDER_CONCURRENCY: "2",
+    RATE_LIMIT_PER_MINUTE: "1000",
   },
   stdio: "ignore",
 });
