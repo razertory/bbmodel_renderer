@@ -22,7 +22,6 @@ export interface Config {
   s3ForcePathStyle: boolean;
   s3Prefix: string;
   publicBaseUrl: string;
-  presignExpiresSeconds: number;
 }
 
 function num(v: string | undefined, d: number): number {
@@ -35,6 +34,13 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
   if (!apiKey) throw new Error("RENDER_API_KEY is required");
   const bucket = env.S3_BUCKET;
   if (!bucket) throw new Error("S3_BUCKET is required");
+  const publicBaseUrl = env.PUBLIC_BASE_URL;
+  if (!publicBaseUrl) throw new Error("PUBLIC_BASE_URL is required");
+  let publicUrl: URL;
+  try { publicUrl = new URL(publicBaseUrl); } catch { throw new Error("PUBLIC_BASE_URL must be a valid HTTP(S) URL"); }
+  if (!["http:", "https:"].includes(publicUrl.protocol) || publicUrl.search || publicUrl.hash || publicUrl.username || publicUrl.password) {
+    throw new Error("PUBLIC_BASE_URL must be an HTTP(S) URL without credentials, query or fragment");
+  }
   return {
     port: num(env.PORT, 3000),
     apiKey,
@@ -54,7 +60,6 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     s3SecretAccessKey: env.S3_SECRET_ACCESS_KEY ?? "",
     s3ForcePathStyle: env.S3_FORCE_PATH_STYLE === "true",
     s3Prefix: (env.S3_PREFIX ?? "blocky/previews/").replace(/^\//, ""),
-    publicBaseUrl: env.PUBLIC_BASE_URL ?? "",
-    presignExpiresSeconds: num(env.PRESIGN_EXPIRES_SECONDS, 600),
+    publicBaseUrl,
   };
 }

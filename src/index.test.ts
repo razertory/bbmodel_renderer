@@ -8,6 +8,7 @@ const proc = spawn("bun", ["run", "src/index.ts"], {
     PORT: String(PORT),
     RENDER_API_KEY: "test-key",
     S3_BUCKET: "test-bucket",
+    PUBLIC_BASE_URL: "https://static.example.com",
     S3_ENDPOINT: "http://localhost:9000",
     RENDER_CONCURRENCY: "2",
     RATE_LIMIT_PER_MINUTE: "1000",

@@ -3,7 +3,7 @@ import type { S3Client } from "@aws-sdk/client-s3";
 import type { Config } from "./config";
 import { downloadModel, SizeError, validateBbmodel } from "./download";
 import { renderMultiviewWebp } from "./render/browser";
-import { objectExists, presignUrl, storageKeyFor, uploadObject } from "./storage";
+import { objectExists, publicUrlFor, storageKeyFor, uploadObject } from "./storage";
 import type { PreviewTask } from "./queue";
 
 export class CodedError extends Error {
@@ -18,7 +18,7 @@ export interface PipelineDeps {
 }
 
 /**
- * Full job pipeline: download → validate → render → upload → presign.
+ * Full job pipeline: download → validate → render → upload → public URL.
  * Mutates task on success; throws CodedError on failure.
  */
 export async function runPipeline(task: PreviewTask, deps: PipelineDeps): Promise<void> {
@@ -78,8 +78,7 @@ export async function runPipeline(task: PreviewTask, deps: PipelineDeps): Promis
       width = rendered.width;
       height = rendered.height;
     }
-    const presigned = await presignUrl(s3, config, key);
-    images.push({ view, storageKey: key, url: presigned.url, expiresAt: presigned.expiresAt, width, height });
+    images.push({ view, storageKey: key, url: publicUrlFor(config, key), width, height });
   }
   if (cached) warnings.push("reused cached render");
   task.status = "ready";

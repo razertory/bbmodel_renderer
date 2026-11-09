@@ -1,6 +1,6 @@
 # bbmodel_renderer
 
-独立的 bbmodel 预览渲染服务：接收模型 URL，渲染五视图合成一张 WebP，上传 S3，返回存储路径与短期签名 URL。
+独立的 bbmodel 预览渲染服务：接收模型 URL，渲染五视图合成一张 WebP，上传 S3，返回存储路径与公开图片 URL。
 
 Bun + Hono。异步任务化：`POST /v1/previews` 返回 202，轮询 `GET /v1/tasks/:taskId` 获取结果。
 
@@ -20,7 +20,7 @@ Content-Type: application/json
 
 ### GET /v1/tasks/:taskId
 
-- `ready`：`result.storageKey`（持久化用）+ `result.url`（短期签名 URL，`expiresAt`）+ `width/height/warnings`
+- `ready`：`result.storageKey`（持久化用）+ `result.url`（公开图片 URL）+ `width/height/warnings`
 - `failed`：`error.code` ∈ INVALID_URL / INVALID_MODEL / MODEL_TOO_LARGE / TOO_MANY_ELEMENTS / DOWNLOAD_FAILED / SSRF_BLOCKED / RENDER_FAILED / RENDER_TIMEOUT / UPLOAD_FAILED
 
 ## 渲染管线
@@ -29,7 +29,7 @@ Content-Type: application/json
 → 校验 bbmodel（元素数 / 纹理限制）
 → 内容哈希 `sha256` 缓存检查（S3 HEAD，命中直接返回）
 → 无头 Chromium + three-blockbench 渲染五视图（isometric/front/back/left/right，带标签，3×2 网格 1536×1024 WebP）
-→ PutObject 到 `S3_PREFIX<hash>/multiview-v1/composite.webp` → `getSignedUrl` 出短期 URL
+→ PutObject 到 `S3_PREFIX<hash>/multiview-v1/composite.webp` → 根据 `PUBLIC_BASE_URL` 生成公开 URL
 
 页面 serviceWorkers 禁用、外部 HTTP 请求全部 abort —— 纹理必须内嵌于 bbmodel。
 
@@ -53,7 +53,7 @@ bun test                 # 20 个单元/集成测试
 {"modelUrl":"https://storage.example.com/models/example.bbmodel","views":["front","top","isometric"]}
 ```
 
-支持 `isometric`、`front`、`back`、`left`、`right`、`top`、`bottom`，数组须非空且不重复。每个视角单独生成一张 515×512 WebP；任务完成后，`result.images` 按请求顺序返回，每项包含 `view`、`storageKey`、`url`、`expiresAt`、`width` 和 `height`，`result.warnings` 为任务警告。省略 `views` 时保持原有五视图合成图及响应格式。不同视角选择请使用不同的 `requestId`。
+支持 `isometric`、`front`、`back`、`left`、`right`、`top`、`bottom`，数组须非空且不重复。每个视角单独生成一张 515×512 WebP；任务完成后，`result.images` 按请求顺序返回，每项包含 `view`、`storageKey`、`url`、`width` 和 `height`，`result.warnings` 为任务警告。省略 `views` 时保持原有五视图合成图及响应格式。不同视角选择请使用不同的 `requestId`。
 
 ## 交互式 API 文档
 

@@ -1,5 +1,4 @@
-import { GetObjectCommand, PutObjectCommand, S3Client, HeadObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { PutObjectCommand, S3Client, HeadObjectCommand } from "@aws-sdk/client-s3";
 import type { Config } from "./config";
 
 export function createS3(config: Config): S3Client {
@@ -42,28 +41,8 @@ export async function uploadObject(
   );
 }
 
-/**
- * Presign a short-lived GET URL. When PUBLIC_BASE_URL is set (path-style storage behind a
- * public gateway/custom domain), the origin is swapped while the /bucket/key path is kept.
- */
-export async function presignUrl(
-  client: S3Client,
-  config: Config,
-  key: string,
-): Promise<{ url: string; expiresAt: string }> {
-  const signed = await getSignedUrl(
-    client,
-    new GetObjectCommand({ Bucket: config.s3Bucket, Key: key }),
-    { expiresIn: config.presignExpiresSeconds },
-  );
-  const expiresAt = new Date(Date.now() + config.presignExpiresSeconds * 1000).toISOString();
-  if (config.publicBaseUrl) {
-    const u = new URL(signed);
-    const pub = new URL(config.publicBaseUrl);
-    u.protocol = pub.protocol;
-    u.hostname = pub.hostname;
-    u.port = pub.port;
-    return { url: u.toString(), expiresAt };
-  }
-  return { url: signed, expiresAt };
+export function publicUrlFor(config: Config, key: string): string {
+  const base = config.publicBaseUrl.replace(/\/+$/, "");
+  const path = key.split("/").map(encodeURIComponent).join("/");
+  return base + "/" + path;
 }

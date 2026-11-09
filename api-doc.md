@@ -113,16 +113,14 @@ HTTP `200` 响应的 `status` 表示任务状态：
       {
         "view": "front",
         "storageKey": "blocky/previews/<内容哈希>/views-v1/front.webp",
-        "url": "https://storage.example.com/正面图片的临时签名地址",
-        "expiresAt": "2026-01-01T00:10:00.000Z",
+        "url": "https://storage.example.com/正面图片的公开地址",
         "width": 515,
         "height": 512
       },
       {
         "view": "top",
         "storageKey": "blocky/previews/<内容哈希>/views-v1/top.webp",
-        "url": "https://storage.example.com/顶部图片的临时签名地址",
-        "expiresAt": "2026-01-01T00:10:00.000Z",
+        "url": "https://storage.example.com/顶部图片的公开地址",
         "width": 515,
         "height": 512
       }
@@ -143,8 +141,7 @@ HTTP `200` 响应的 `status` 表示任务状态：
   "status": "ready",
   "result": {
     "storageKey": "blocky/previews/<内容哈希>/multiview-v1/composite.webp",
-    "url": "https://storage.example.com/合成图片的临时签名地址",
-    "expiresAt": "2026-01-01T00:10:00.000Z",
+    "url": "https://storage.example.com/合成图片的公开地址",
     "width": 1536,
     "height": 1024,
     "warnings": []
@@ -154,7 +151,7 @@ HTTP `200` 响应的 `status` 表示任务状态：
 
 ### 图片地址与任务保留
 
-`url` 是有时效的签名地址，`expiresAt` 为到期时间；默认有效期为 600 秒，实际以返回值为准。任务查询返回任务完成时生成的 URL，不会刷新签名；当前没有单独的签名刷新接口。`storageKey` 可用于持久化记录，使用它读取对象需要相应存储访问权限。
+`url` 是无需签名参数的公开图片地址，其可用性取决于存储对象与公开访问配置。`storageKey` 可用于持久化记录，使用它读取对象需要相应存储访问权限。
 
 任务状态保存在服务进程内，服务重启后可能无法查询；完成的旧任务也可能被清理。调用方应及时保存需要的结果信息，并处理 `TASK_NOT_FOUND`。
 

@@ -5,8 +5,7 @@ const json = (schema: object) => ({ "application/json": { schema } });
 const error = (description: string) => ({ description, content: json(ref("ErrorResponse")) });
 const imageFields = {
   storageKey: { type: "string", description: "图片存储路径" },
-  url: { type: "string", format: "uri", description: "临时签名 URL，任务查询不会刷新签名" },
-  expiresAt: { type: "string", format: "date-time" },
+  url: { type: "string", format: "uri", description: "公开图片 URL，无签名参数" },
   width: { type: "integer" },
   height: { type: "integer" },
 };
@@ -16,7 +15,7 @@ export const openapi = {
   info: {
     title: "BBModel 预览渲染 API",
     version: "1.0.0",
-    description: "提交模型 URL，轮询任务状态，获取 WebP 预览图。API Key 用于 /v1 接口鉴权。图片 URL 默认有效期为 600 秒，任务状态保存在服务进程内。",
+    description: "提交模型 URL，轮询任务状态，获取 WebP 预览图。API Key 用于 /v1 接口鉴权。图片 URL 为公开地址；任务状态保存在服务进程内。",
   },
   paths: {
     "/health": {

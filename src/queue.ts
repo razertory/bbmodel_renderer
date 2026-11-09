@@ -6,7 +6,6 @@ export interface PreviewImage {
   view: View;
   storageKey: string;
   url: string;
-  expiresAt: string;
   width: number;
   height: number;
 }
@@ -14,7 +13,6 @@ export interface PreviewImage {
 export interface PreviewResult {
   storageKey?: string;
   url?: string;
-  expiresAt?: string;
   width?: number;
   height?: number;
   images?: PreviewImage[];
