@@ -161,3 +161,20 @@ describe("view selection", () => {
     expect(res.status).toBe(202);
   });
 });
+
+describe("API documentation", () => {
+  it("serves Swagger UI and a matching OpenAPI document", async () => {
+    await waitForServer();
+    const page = await fetch(`${base}/docs`);
+    expect(page.status).toBe(200);
+    expect(await page.text()).toContain("SwaggerUIBundle");
+    for (const asset of ["swagger-ui.css", "swagger-ui-bundle.js"]) {
+      expect((await fetch(`${base}/docs-assets/${asset}`)).status).toBe(200);
+    }
+    expect((await fetch(`${base}/docs-assets/other.js`)).status).toBe(404);
+    const spec = await (await fetch(`${base}/openapi.json`)).json();
+    expect(spec.paths["/v1/previews"].post.security).toEqual([{ bearerAuth: [] }]);
+    expect(spec.components.schemas.PreviewRequest.properties.views.items.enum).toEqual(["isometric", "front", "back", "left", "right", "top", "bottom"]);
+    expect(spec.paths["/v1/tasks/{taskId}"].get).toBeDefined();
+  });
+});

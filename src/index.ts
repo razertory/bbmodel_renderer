@@ -5,6 +5,7 @@ import { TaskQueue } from "./queue";
 import { createS3 } from "./storage";
 import { runPipeline } from "./pipeline";
 import { previewsRoute } from "./routes/previews";
+import { docs } from "./docs";
 
 const config = loadConfig();
 const limiter = new RateLimiter(config.rateLimitPerMinute);
@@ -15,6 +16,7 @@ const queue = new TaskQueue(config.concurrency, config.queueMaxLength, async (ta
 
 const app = new Hono();
 
+app.route("/", docs);
 app.get("/health", (c) => c.json({ status: "ok", queue: queue.size, concurrency: config.concurrency }));
 app.use("/v1/*", authMiddleware(config, limiter));
 app.route("/", previewsRoute(config, queue));

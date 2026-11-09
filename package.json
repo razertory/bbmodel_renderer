@@ -14,6 +14,7 @@
     "@aws-sdk/s3-request-presigner": "3.1164.0",
     "hono": "^4.13.17",
     "playwright-core": "^1.49.0",
+    "swagger-ui-dist": "^5.34.1",
     "three": "0.187.0",
     "three-blockbench": "0.1.0"
   }

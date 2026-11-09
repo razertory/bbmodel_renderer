@@ -54,3 +54,7 @@ bun test                 # 20 个单元/集成测试
 ```
 
 支持 `isometric`、`front`、`back`、`left`、`right`、`top`、`bottom`，数组须非空且不重复。每个视角单独生成一张 515×512 WebP；任务完成后，`result.images` 按请求顺序返回，每项包含 `view`、`storageKey`、`url`、`expiresAt`、`width` 和 `height`，`result.warnings` 为任务警告。省略 `views` 时保持原有五视图合成图及响应格式。不同视角选择请使用不同的 `requestId`。
+
+## 交互式 API 文档
+
+启动服务后访问 `/docs` 查看 Swagger UI，通过 **Authorize** 输入 API Key 后可直接调试接口。OpenAPI 描述文件位于 `/openapi.json`。
