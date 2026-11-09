@@ -7,8 +7,8 @@ const env = { RENDER_API_KEY: "key", S3_BUCKET: "bucket", PUBLIC_BASE_URL: "http
 describe("public image URLs", () => {
   it("returns a complete unsigned URL for each output type", () => {
     const config = loadConfig(env);
-    expect(publicUrlFor(config, storageKeyFor(config, "hash", "front"))).toBe("https://static.razertory.com/blocky/previews/hash/views-v1/front.webp");
-    expect(publicUrlFor(config, storageKeyFor(config, "hash"))).toBe("https://static.razertory.com/blocky/previews/hash/multiview-v1/composite.webp");
+    expect(publicUrlFor(config, storageKeyFor(config, "hash", "front"))).toBe("https://static.razertory.com/blocky/previews/hash/views-v2/front.webp");
+    expect(publicUrlFor(config, storageKeyFor(config, "hash"))).toBe("https://static.razertory.com/blocky/previews/hash/multiview-v2/composite.webp");
   });
 
   it("preserves a base path and encodes object key characters", () => {

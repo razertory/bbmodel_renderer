@@ -9,18 +9,7 @@ export interface RenderOptions {
   views: string[];
   cellWidth: number;
   cellHeight: number;
-  labelPrefix?: string;
 }
-
-const LABELS: Record<string, string> = {
-  front: "Front",
-  back: "Back",
-  left: "Left",
-  right: "Right",
-  top: "Top",
-  bottom: "Bottom",
-  isometric: "Isometric",
-};
 
 async function renderMultiview(text: string, opts: RenderOptions): Promise<{ webpBase64: string; width: number; height: number }> {
   const loader = new BBModelLoader(new THREE.LoadingManager(), { loadTextures: true });
@@ -78,15 +67,6 @@ async function renderMultiview(text: string, opts: RenderOptions): Promise<{ web
     const y = Math.floor(i / cols) * cellHeight;
     ctx.drawImage(renderer.domElement, x, y, cellWidth, cellHeight);
 
-    // label
-    const label = LABELS[view] ?? view;
-    ctx.fillStyle = "rgba(24,24,27,0.82)";
-    const pad = 6;
-    ctx.font = "600 16px system-ui, sans-serif";
-    const tw = ctx.measureText(label).width;
-    ctx.fillRect(x + pad, y + pad, tw + pad * 2, 26);
-    ctx.fillStyle = "#ffffff";
-    ctx.fillText(label, x + pad * 2, y + pad + 18);
   }
 
   const blob = await new Promise<Blob>((resolve, reject) =>

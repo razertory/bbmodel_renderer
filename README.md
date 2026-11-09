@@ -28,8 +28,8 @@ Content-Type: application/json
 下载（SSRF 防护：HTTPS only、私网/云元数据 IP 拦截、DNS 解析校验、重定向 ≤3、大小上限、超时）
 → 校验 bbmodel（元素数 / 纹理限制）
 → 内容哈希 `sha256` 缓存检查（S3 HEAD，命中直接返回）
-→ 无头 Chromium + three-blockbench 渲染五视图（isometric/front/back/left/right，带标签，3×2 网格 1536×1024 WebP）
-→ PutObject 到 `S3_PREFIX<hash>/multiview-v1/composite.webp` → 根据 `PUBLIC_BASE_URL` 生成公开 URL
+→ 无头 Chromium + three-blockbench 渲染五视图（isometric/front/back/left/right，3×2 网格 1536×1024 WebP）
+→ PutObject 到 `S3_PREFIX<hash>/multiview-v2/composite.webp` → 根据 `PUBLIC_BASE_URL` 生成公开 URL
 
 页面 serviceWorkers 禁用、外部 HTTP 请求全部 abort —— 纹理必须内嵌于 bbmodel。
 

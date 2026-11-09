@@ -41,7 +41,7 @@ export async function renderMultiviewWebp(
 ): Promise<RenderOutput> {
   const browser = await getBrowser();
   const context = await browser.newContext({
-    // 3x2 grid of 512x512 cells → 1536x1024 + label padding handled in-page
+    // 3x2 grid of 512x512 cells → 1536x1024
     viewport: { width: 1600, height: 1200 },
     serviceWorkers: "block",
   });
