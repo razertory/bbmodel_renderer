@@ -44,3 +44,13 @@ bun test                 # 20 个单元/集成测试
 ```
 
 配置见 `.env.example`。
+
+### 选择独立视角
+
+提交时可传入 `views` 数组，例如：
+
+```json
+{"modelUrl":"https://storage.example.com/models/example.bbmodel","views":["front","top","isometric"]}
+```
+
+支持 `isometric`、`front`、`back`、`left`、`right`、`top`、`bottom`，数组须非空且不重复。每个视角单独生成一张 515×512 WebP；任务完成后，`result.images` 按请求顺序返回，每项包含 `view`、`storageKey`、`url`、`expiresAt`、`width` 和 `height`，`result.warnings` 为任务警告。省略 `views` 时保持原有五视图合成图及响应格式。不同视角选择请使用不同的 `requestId`。

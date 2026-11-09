@@ -18,6 +18,7 @@ const LABELS: Record<string, string> = {
   left: "Left",
   right: "Right",
   top: "Top",
+  bottom: "Bottom",
   isometric: "Isometric",
 };
 
@@ -66,6 +67,7 @@ async function renderMultiview(text: string, opts: RenderOptions): Promise<{ web
       case "left": dirVec.set(-1, 0, 0); break;
       case "right": dirVec.set(1, 0, 0); break;
       case "top": dirVec.set(0, 1, 0.001); break;
+      case "bottom": dirVec.set(0, -1, 0.001); break;
       default: dirVec.set(1, 1, 1); break; // isometric
     }
     camera.position.copy(center).add(dirVec.multiplyScalar(radius * 2.2));

@@ -1,6 +1,7 @@
 import { chromium, type Browser } from "playwright-core";
 import { existsSync } from "node:fs";
 import path from "node:path";
+import type { View } from "./views";
 
 let browserPromise: Promise<Browser> | null = null;
 
@@ -36,6 +37,7 @@ const VIEWS = ["isometric", "front", "back", "left", "right"];
 export async function renderMultiviewWebp(
   bbmodelText: string,
   timeoutMs: number,
+  view?: View,
 ): Promise<RenderOutput> {
   const browser = await getBrowser();
   const context = await browser.newContext({
@@ -57,7 +59,7 @@ export async function renderMultiviewWebp(
     const result = await page.evaluate(
       async ({ text, views, cellWidth, cellHeight }) =>
         await window.__renderMultiview(text, { views, cellWidth, cellHeight }),
-      { text: bbmodelText, views: VIEWS, cellWidth: 512, cellHeight: 512 },
+      { text: bbmodelText, views: view ? [view] : VIEWS, cellWidth: view ? 515 : 512, cellHeight: 512 },
     );
     return {
       webp: Uint8Array.from(atob(result.webpBase64), (ch) => ch.charCodeAt(0)),

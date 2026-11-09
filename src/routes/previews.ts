@@ -3,12 +3,13 @@ import type { Config } from "../config";
 import { badRequest } from "../http";
 import type { TaskQueue } from "../queue";
 import { newTaskId, type PreviewTask } from "../queue";
+import { isView } from "../render/views";
 
 export function previewsRoute(config: Config, queue: TaskQueue) {
   const app = new Hono();
 
   app.post("/v1/previews", async (c) => {
-    let body: { modelUrl?: unknown; requestId?: unknown };
+    let body: { modelUrl?: unknown; requestId?: unknown; views?: unknown };
     try {
       body = await c.req.json();
     } catch {
@@ -25,6 +26,10 @@ export function previewsRoute(config: Config, queue: TaskQueue) {
       return badRequest(c, "INVALID_URL", "modelUrl is not a valid URL", requestId);
     }
 
+    if (body.views !== undefined && (!Array.isArray(body.views) || body.views.length === 0 || !body.views.every(isView) || new Set(body.views).size !== body.views.length)) {
+      return badRequest(c, "INVALID_REQUEST", "views must be a non-empty array of unique supported views", requestId);
+    }
+
     // in-flight dedupe by requestId
     const existing = queue.findInFlight(requestId);
     if (existing) {
@@ -35,6 +40,7 @@ export function previewsRoute(config: Config, queue: TaskQueue) {
       id: newTaskId(),
       requestId,
       modelUrl,
+      views: body.views as PreviewTask["views"],
       status: "queued",
       createdAt: Date.now(),
     };

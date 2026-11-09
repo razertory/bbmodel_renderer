@@ -53,41 +53,42 @@ export async function runPipeline(task: PreviewTask, deps: PipelineDeps): Promis
 
   // 3. content-hash cache (cross-restart via S3 HEAD)
   const contentHash = createHash("sha256").update(downloaded.bytes).digest("hex");
-  const key = storageKeyFor(config, contentHash);
-  let width = 1536;
-  let height = 1024;
-  if (await objectExists(s3, config, key)) {
-    warnings.push("reused cached render");
-  } else {
-    // 4. render
-    let rendered;
-    try {
-      rendered = await withTimeout(renderMultiviewWebp(downloaded.text, config.renderTimeoutMs), config.renderTimeoutMs, "RENDER_TIMEOUT", "render timed out");
-    } catch (err) {
-      if (err instanceof CodedError) throw err;
-      const msg = String((err as Error)?.message ?? err);
-      throw new CodedError("RENDER_FAILED", `render failed: ${msg}`);
+  const views = task.views ?? [undefined];
+  const images = [];
+  let cached = false;
+  for (const view of views) {
+    const key = storageKeyFor(config, contentHash, view);
+    let width = view ? 515 : 1536;
+    let height = view ? 512 : 1024;
+    if (await objectExists(s3, config, key)) {
+      cached = true;
+    } else {
+      let rendered;
+      try {
+        rendered = await withTimeout(renderMultiviewWebp(downloaded.text, config.renderTimeoutMs, view), config.renderTimeoutMs, "RENDER_TIMEOUT", "render timed out");
+      } catch (err) {
+        if (err instanceof CodedError) throw err;
+        throw new CodedError("RENDER_FAILED", "render failed: " + String((err as Error)?.message ?? err));
+      }
+      try {
+        await uploadObject(s3, config, key, rendered.webp);
+      } catch (err) {
+        throw new CodedError("UPLOAD_FAILED", "failed to upload preview: " + String((err as Error)?.message ?? err));
+      }
+      width = rendered.width;
+      height = rendered.height;
     }
-    // 5. upload
-    try {
-      await uploadObject(s3, config, key, rendered.webp);
-    } catch (err) {
-      throw new CodedError("UPLOAD_FAILED", `failed to upload preview: ${String((err as Error)?.message ?? err)}`);
-    }
-    width = rendered.width;
-    height = rendered.height;
+    const presigned = await presignUrl(s3, config, key);
+    images.push({ view, storageKey: key, url: presigned.url, expiresAt: presigned.expiresAt, width, height });
   }
-
-  const presigned = await presignUrl(s3, config, key);
+  if (cached) warnings.push("reused cached render");
   task.status = "ready";
-  task.result = {
-    storageKey: key,
-    url: presigned.url,
-    expiresAt: presigned.expiresAt,
-    width,
-    height,
-    warnings,
-  };
+  if (task.views) {
+    task.result = { images: images as import("./queue").PreviewImage[], warnings };
+  } else {
+    const { view, ...image } = images[0];
+    task.result = { ...image, warnings };
+  }
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number, code: string, message: string): Promise<T> {

@@ -1,11 +1,23 @@
+import type { View } from "./render/views";
+
 export type JobStatus = "queued" | "running" | "ready" | "failed";
 
-export interface PreviewResult {
+export interface PreviewImage {
+  view: View;
   storageKey: string;
   url: string;
   expiresAt: string;
   width: number;
   height: number;
+}
+
+export interface PreviewResult {
+  storageKey?: string;
+  url?: string;
+  expiresAt?: string;
+  width?: number;
+  height?: number;
+  images?: PreviewImage[];
   warnings: string[];
 }
 
@@ -13,6 +25,7 @@ export interface PreviewTask {
   id: string;
   requestId: string;
   modelUrl: string;
+  views?: View[];
   status: JobStatus;
   createdAt: number;
   finishedAt?: number;

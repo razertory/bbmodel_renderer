@@ -133,3 +133,19 @@ curl "$BASE_URL/health"
 ```
 
 示例响应：`{"status":"ok","queue":0,"concurrency":2}`。`queue` 包含等待和运行中的任务数。
+
+## 选择独立视角
+
+提交请求时可增加 `views` 数组，例如：
+
+```json
+{"modelUrl":"https://storage.example.com/models/example.bbmodel","requestId":"model-front-top","views":["front","top"]}
+```
+
+可选视角：`isometric`（等距）、`front`（前）、`back`（后）、`left`（左）、`right`（右）、`top`（上）、`bottom`（下）。数组必须非空且各视角不能重复；每个视角生成独立的 515×512 WebP，结果按请求顺序返回：
+
+```json
+{"images":[{"view":"front","storageKey":"blocky/previews/<内容哈希>/views-v1/front.webp","url":"https://storage.example.com/签名地址","expiresAt":"2026-01-01T00:10:00.000Z","width":515,"height":512}],"warnings":[]}
+```
+
+上述对象位于任务的 `result` 字段。省略 `views` 时仍返回原来的五视图合成图。不同视角选择应使用不同的 `requestId`，以免命中任务去重。

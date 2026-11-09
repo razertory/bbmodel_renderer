@@ -14,7 +14,8 @@ export function createS3(config: Config): S3Client {
   });
 }
 
-export function storageKeyFor(config: Config, contentHash: string): string {
+export function storageKeyFor(config: Config, contentHash: string, view?: import("./render/views").View): string {
+  if (view) return `${config.s3Prefix}${contentHash}/views-v1/${view}.webp`;
   return `${config.s3Prefix}${contentHash}/multiview-v1/composite.webp`;
 }
 

@@ -137,3 +137,27 @@ describe("http api", () => {
     expect((await res.json()).error.code).toBe("TASK_NOT_FOUND");
   });
 });
+
+describe("view selection", () => {
+  it("rejects invalid view selections", async () => {
+    await waitForServer();
+    for (const views of [[], ["unknown"], ["front", "front"], "front", null]) {
+      const res = await fetch(`${base}/v1/previews`, {
+        method: "POST",
+        headers: { authorization: "Bearer test-key", "content-type": "application/json" },
+        body: JSON.stringify({ modelUrl: "https://example.com/m.bbmodel", views }),
+      });
+      expect(res.status).toBe(400);
+      expect((await res.json()).error.code).toBe("INVALID_REQUEST");
+    }
+  });
+
+  it("accepts multiple supported views", async () => {
+    const res = await fetch(`${base}/v1/previews`, {
+      method: "POST",
+      headers: { authorization: "Bearer test-key", "content-type": "application/json" },
+      body: JSON.stringify({ modelUrl: "https://example.com/m.bbmodel", views: ["front", "top", "bottom"] }),
+    });
+    expect(res.status).toBe(202);
+  });
+});
